@@ -1,63 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { news } from "../Data/newsData";
+import { useNewsData } from "../hooks/useNewsData";
 import CommentSection from "../Components/CommentSection";
 import { Helmet } from "react-helmet-async";
 import { LuCalendarDays } from "react-icons/lu";
 
 const NewsArticle = () => {
   const { slug } = useParams();
-  const [content, setContent] = useState("");
-
-  const article = news.find((item) => item.slug === slug);
+  const { news, loading } = useNewsData();
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [slug]);
 
-    if (article) {
-      let isMounted = true;
-
-      // Use BASE_URL so this also works when deployed below the domain root.
-      const baseUrl = import.meta.env.BASE_URL || "/";
-      const filePath = `${baseUrl.replace(/\/$/, "")}/content/news/${encodeURIComponent(slug)}.md`;
-
-      fetch(filePath)
-        .then((res) => {
-          if (!res.ok) throw new Error("File not found");
-          return res.text();
-        })
-        .then((text) => {
-          if (isMounted) {
-            // A hosting fallback page means the Markdown file was not found.
-            const trimmedText = text.trim().toLowerCase();
-            if (
-              trimmedText.startsWith("<!doctype html") ||
-              trimmedText.startsWith("<html")
-            ) {
-              throw new Error(`Markdown file not found at ${filePath}`);
-            }
-            setContent(text);
-          }
-        })
-        .catch((err) => {
-          console.error("Fetch error:", err);
-          setContent(
-            "# Content Not Found\nPlease check that the file exists in `public/content/blogs/`.",
-          );
-        });
-
-      return () => {
-        isMounted = false;
-      };
-    }
-  }, [slug, article]);
-
-  if (!article)
+  if (loading) {
     return (
-      <div className="py-20 text-center font-bold">Metadata not found.</div>
+      <div className="min-h-screen py-20 text-center text-slate-500 font-jakarta">
+        Loading article...
+      </div>
     );
+  }
+
+  const article = news.find((item) => item.slug === slug);
+
+  if (!article) {
+    return (
+      <div className="py-20 text-center font-bold">Article not found.</div>
+    );
+  }
 
   return (
     <>
@@ -71,7 +43,7 @@ const NewsArticle = () => {
 
         <link
           rel="canonical"
-          href={`https://www.growmore.one/news/${slug}/`}
+          href={`https://growmoreglobalvisa.com/news/${slug}/`}
           key="canonical"
         />
 
@@ -91,12 +63,13 @@ const NewsArticle = () => {
 
         <meta
           property="og:url"
-          content={`https://www.growmore.one/news/${slug}/`}
+          content={`https://growmoreglobalvisa.com/news/${slug}/`}
           key="og-url"
         />
 
         <meta name="robots" content="index, follow" />
       </Helmet>
+
       <div className="min-h-screen bg-white font-jakarta text-[#042325]">
         {/* HEADER */}
         <section className="bg-slate-100 min-h-[170px] w-full max-w-[1321px] mx-auto px-4 sm:px-6 py-10 sm:py-14 text-sky-800 rounded-2xl sm:rounded-[34px] mt-6">
@@ -115,11 +88,13 @@ const NewsArticle = () => {
         {/* CONTENT */}
         <section className="py-12 max-w-5xl mx-auto px-6">
           {/* IMAGE */}
-          <img
-            src={article.image}
-            alt={article.title}
-            className="w-full rounded-4xl mb-8 object-cover max-h-[640px]"
-          />
+          {article.image && (
+            <img
+              src={article.image}
+              alt={article.title}
+              className="w-full rounded-4xl mb-8 object-cover max-h-[640px]"
+            />
+          )}
 
           {/* MARKDOWN CONTENT */}
           <div>
@@ -156,11 +131,10 @@ const NewsArticle = () => {
                   <a
                     className="text-[#2ED09B] underline"
                     target="_blank"
+                    rel="noopener noreferrer"
                     {...props}
                   />
                 ),
-
-                // ✅ TABLE SUPPORT STARTS HERE
 
                 table: ({ ...props }) => (
                   <div className="overflow-x-auto my-6 border border-gray-300 rounded-lg">
@@ -192,20 +166,19 @@ const NewsArticle = () => {
                 tr: ({ ...props }) => (
                   <tr className="hover:bg-gray-50 transition" {...props} />
                 ),
-
-                // ✅ TABLE SUPPORT ENDS HERE
               }}
             >
-              {content}
+              {article.content}
             </ReactMarkdown>
           </div>
+
           {/* CONTACT BAR */}
-          <div className="w-full bg-[#2ED09B]  rounded-lg p-5 shadow-sm my-8">
-            <div className="flex flex-col md:flex-row justify-start items-center gap-2 md:gap-4  pl-3 text-black font-semibold text-center text-[15px] sm:text-[17px]">
+          <div className="w-full bg-[#2ED09B] rounded-lg p-5 shadow-sm my-8">
+            <div className="flex flex-col md:flex-row justify-start items-center gap-2 md:gap-4 pl-3 text-black font-semibold text-center text-[15px] sm:text-[17px]">
               <div className="flex items-center">
                 <span>Email: </span>
                 <a
-                  href="mailto:info@growmore.one"
+                  href="mailto:study@growmore.one"
                   className="ml-1 text-blue-500 transition-colors"
                 >
                   study@growmore.one
@@ -217,8 +190,8 @@ const NewsArticle = () => {
               <div className="flex items-center">
                 <span>WhatsApp: </span>
                 <a
-                  href="https://wa.me/61434202021"
-                  className="ml-1 text-blue-500 "
+                  href="https://wa.me/919081899669"
+                  className="ml-1 text-blue-500"
                 >
                   (+91) 9081899669
                 </a>
@@ -228,12 +201,13 @@ const NewsArticle = () => {
 
               <div className="flex items-center">
                 <span>Phone: </span>
-                <a href="tel:+61387643334" className="ml-1 text-black ">
+                <a href="tel:+919081899668" className="ml-1 text-black">
                   (+91) 9081899668
                 </a>
               </div>
             </div>
           </div>
+
           <CommentSection />
         </section>
       </div>
