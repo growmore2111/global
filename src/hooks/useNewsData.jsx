@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Papa from "papaparse";
 
 const SHEET_URL = import.meta.env.VITE_NEWS_SHEET_URL;
-const CACHE_KEY = "live_news_cache_v1";
+const CACHE_KEY = "live_news_cache_v2"; // Bumped version to clear old cache automatically
 
 export function useNewsData() {
   const [news, setNews] = useState(() => {
@@ -24,23 +24,55 @@ export function useNewsData() {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
+        console.log("RAW CSV ROWS FROM GOOGLE SHEET:", results.data);
+
         const formatted = results.data
-          .filter(
-            (row) =>
-              row.slug?.trim() &&
-              row.title?.trim() &&
-              (row.status || "published").trim().toLowerCase() === "published"
-          )
-          .map((row) => ({
-            id: Number(row.id) || 0,
-            slug: row.slug.trim(),
-            title: row.title.trim(),
-            metaTitle: (row.metaTitle || row.title).trim(),
-            metaDescription: (row.metaDescription || row.title).trim(),
-            date: (row.date || "").trim(),
-            image: (row.image || "").trim(),
-            content: row.content || "",
-          }))
+          .filter((row) => {
+            // Case-insensitive key lookup helper for filtering
+            const getVal = (key) => {
+              const foundKey = Object.keys(row).find(
+                (k) => k.trim().toLowerCase() === key.toLowerCase()
+              );
+              return foundKey ? row[foundKey] : "";
+            };
+
+            const slug = getVal("slug");
+            const title = getVal("title");
+            const status = getVal("status") || "published";
+
+            return (
+              slug?.trim() &&
+              title?.trim() &&
+              status.trim().toLowerCase() === "published"
+            );
+          })
+          .map((row) => {
+            // Helper to find keys regardless of casing or extra spaces in Google Sheets headers
+            const getField = (key) => {
+              const foundKey = Object.keys(row).find(
+                (k) => k.trim().toLowerCase() === key.toLowerCase()
+              );
+              return foundKey ? row[foundKey] : "";
+            };
+
+            const title = getField("title").trim();
+            const content = getField("content").trim();
+
+            if (!content) {
+              console.warn(`[useNewsData] Warning: Article "${title}" has empty content! Check Column H header name.`);
+            }
+
+            return {
+              id: Number(getField("id")) || 0,
+              slug: getField("slug").trim(),
+              title: title,
+              metaTitle: (getField("metaTitle") || title).trim(),
+              metaDescription: (getField("metaDescription") || title).trim(),
+              date: getField("date").trim(),
+              image: getField("image").trim(),
+              content: content,
+            };
+          })
           .sort((a, b) => b.id - a.id);
 
         setNews(formatted);
