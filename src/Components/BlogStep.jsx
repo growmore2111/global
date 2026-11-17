@@ -72,7 +72,7 @@ const BlogStep = () => {
                     {blog.title}
                   </h3>
                   <Link
-                    to={`/news/${blog.slug}/`}
+                    to={`/blogs/${blog.slug}/`}
                     aria-label={`Read ${blog.title}`}
                     className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 font-bold transition-transform duration-300 group-hover:translate-x-1"
                   >
