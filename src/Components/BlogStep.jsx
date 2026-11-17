@@ -60,7 +60,19 @@ const BlogStep = () => {
             {currentBlogs.map((blog) => (
               <div
                 key={blog.id || blog.slug || blog.title}
-                className="group relative xl:h-[242px] h-[200px] w-full max-w-[450px] overflow-hidden rounded-2xl shadow-md transition-all duration-300 hover:shadow-xl"
+                className="
+                group
+                w-full
+                max-w-[450px]
+                overflow-hidden
+                rounded-[30px]
+                bg-[linear-gradient(69.28deg,_#F4FFF6_4.06%,_#E8FAFF_92.34%)]
+                shadow-[0px_4px_14px_rgba(0,0,0,0.12)]
+                transition-all
+                duration-300
+                hover:-translate-y-1
+                hover:shadow-[0px_8px_22px_rgba(0,0,0,0.15)]
+              "
               >
                 <img
                   src={blog.image}
