@@ -7,7 +7,7 @@ import CommentSection from "../Components/CommentSection";
 import { Helmet } from "react-helmet-async";
 import { LuCalendarDays } from "react-icons/lu";
 
-const NewsArticle = () => {
+const BlogsArticle = () => {
   const { slug } = useParams();
   const { blogs, loading } = useBlogsData();
 
@@ -272,4 +272,4 @@ const NewsArticle = () => {
   );
 };
 
-export default NewsArticle;
+export default BlogsArticle;
