@@ -59,7 +59,7 @@ const BlogStep = () => {
           <div className="grid grid-cols-1 justify-items-center gap-8 md:grid-cols-2 lg:grid-cols-3">
             {currentBlogs.map((blog) => (
               <div
-                key={blog.id || blog.slug || blog.title}
+                key={blog.id}
                 className="
                 group
                 w-full
