@@ -19,11 +19,11 @@ const BlogStep = () => {
   const currentBlogs = blogs.slice(indexOfFirstBlog, indexOfLastBlog);
 
   const goToPreviousPage = () => {
-    setCurrentPage((page) => Math.max(1, Math.min(page, totalPages) - 1));
+    setCurrentPage((page) => Math.max(1, page - 1));
   };
 
   const goToNextPage = () => {
-    setCurrentPage((page) => Math.min(totalPages, Math.min(page, totalPages) + 1));
+    setCurrentPage((page) => Math.min(totalPages, page + 1));
   };
 
   if (loading) {
